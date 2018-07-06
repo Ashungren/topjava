@@ -1,16 +1,15 @@
-package ru.javawebinar.topjava;
+package ru.javawebinar.topjava.Storage;
 
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Storage {
+public class Storage implements AbstractStorage {
     private Map<Integer, Meal> storage = new ConcurrentHashMap<>();
     private AtomicInteger count = new AtomicInteger(0);
 
@@ -20,29 +19,22 @@ public class Storage {
         }
     }
 
-    public void save(Meal meal) {
+    @Override
+    public Meal save(Meal meal) {
         if (!exist(meal.getId())) {
             meal.setId(count.incrementAndGet());
-            storage.put(meal.getId(), meal);
-        } else {
-            update(meal, meal.getId());
         }
+        return storage.put(meal.getId(), meal);
     }
 
-    public void update(Meal meal, Integer id) {
-        if (exist(id)) {
-            storage.put(id, meal);
-        } else {
-            save(meal);
-        }
-    }
-
+    @Override
     public void delete(Integer id) {
         if (exist(id)) {
             storage.remove(id);
         }
     }
 
+    @Override
     public Meal get(Integer id) {
         if (exist(id)) {
             return storage.get(id);
@@ -50,6 +42,7 @@ public class Storage {
         return null;
     }
 
+    @Override
     public List<Meal> getAll() {
         return new ArrayList<>(storage.values());
     }
