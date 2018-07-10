@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.repository.mock;
 
+import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 
@@ -8,6 +9,7 @@ import java.time.Month;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -15,12 +17,13 @@ import java.util.stream.Collectors;
 import static ru.javawebinar.topjava.repository.mock.InMemoryUserRepositoryImpl.ADMIN_ID;
 import static ru.javawebinar.topjava.repository.mock.InMemoryUserRepositoryImpl.USER_ID;
 
+@Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
 
-    public static final Comparator<Meal> MEAL_COMPARATOR = (m1, m2) -> m2.getDateTime().compareTo(m1.getDateTime());
+    private static final Comparator<Meal> MEAL_COMPARATOR = (m1, m2) -> m2.getDateTime().compareTo(m1.getDateTime());
 
     private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
-    private Map<Integer, Meal> userMealIdBase = new ConcurrentHashMap<>();
+    private Map<Meal, Integer> userMealIdBase = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
@@ -37,37 +40,49 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal save(Meal meal, int userId) {
-        int id = meal.getId();
+        Integer id = meal.getId();
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
-        } else if (get(id, userId) == null) {
-            return null;
+            repository.put(meal.getId(), meal);
+            userMealIdBase.put(meal, userId);
+        } else if (get(id, userId) != null) {
+            repository.put(id, meal);
+            for (Meal m : userMealIdBase.keySet()) {
+                if (Objects.equals(m.getId(), meal.getId())) {
+                    userMealIdBase.remove(m);
+                }
+            }
+            userMealIdBase.put(meal, userId);
         }
-        repository.put(id, meal);
-        userMealIdBase.put(userId, meal);
         return meal;
     }
 
     @Override
     public boolean delete(int id, int userId) {
-        if (userMealIdBase.get(userId).equals(repository.get(id))) {
-            userMealIdBase.remove(userId);
-            repository.remove(id);
-            return true;
+        Meal meal = repository.get(id);
+        for (Meal m : userMealIdBase.keySet()) {
+            if (m.equals(meal) && userMealIdBase.get(m) == userId) {
+                userMealIdBase.remove(m);
+                repository.remove(id);
+                return true;
+            }
         }
         return false;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        if (userMealIdBase.get(userId).equals(repository.get(id))) {
-            return repository.get(id);
+        Meal meal = repository.get(id);
+        for (Meal m : userMealIdBase.keySet()) {
+            if (m.equals(meal) && userMealIdBase.get(m) == userId) {
+                return m;
+            }
         }
         return null;
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return userMealIdBase.values().stream().filter(m -> m.getId().equals(userId)).sorted(MEAL_COMPARATOR).collect(Collectors.toList());
+        return userMealIdBase.keySet().stream().filter(m -> userMealIdBase.get(m) == userId).sorted(MEAL_COMPARATOR).collect(Collectors.toList());
     }
 }
