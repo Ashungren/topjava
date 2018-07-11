@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static ru.javawebinar.topjava.repository.mock.InMemoryUserRepositoryImpl.ADMIN_ID;
-import static ru.javawebinar.topjava.repository.mock.InMemoryUserRepositoryImpl.USER_ID;
+import static ru.javawebinar.topjava.util.UsersUtil.ADMIN_ID;
+import static ru.javawebinar.topjava.util.UsersUtil.USER_ID;
 
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
@@ -60,11 +60,13 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     @Override
     public boolean delete(int id, int userId) {
         Meal meal = repository.get(id);
-        for (Meal m : userMealIdBase.keySet()) {
-            if (m.equals(meal) && userMealIdBase.get(m) == userId) {
-                userMealIdBase.remove(m);
-                repository.remove(id);
-                return true;
+        if (meal != null) {
+            for (Meal m : userMealIdBase.keySet()) {
+                if (m.equals(meal) && userMealIdBase.get(m) == userId) {
+                    userMealIdBase.remove(m);
+                    repository.remove(id);
+                    return true;
+                }
             }
         }
         return false;
@@ -73,9 +75,11 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     @Override
     public Meal get(int id, int userId) {
         Meal meal = repository.get(id);
-        for (Meal m : userMealIdBase.keySet()) {
-            if (m.equals(meal) && userMealIdBase.get(m) == userId) {
-                return m;
+        if (meal != null) {
+            for (Meal m : userMealIdBase.keySet()) {
+                if (m.equals(meal) && userMealIdBase.get(m) == userId) {
+                    return m;
+                }
             }
         }
         return null;

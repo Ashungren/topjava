@@ -4,9 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.util.List;
+
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
 @Service
 public class MealServiceImpl implements MealService {
@@ -20,36 +24,23 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public Meal save(Meal meal, int userId) {
-        Meal userMeal = repository.save(meal, userId);
-        if (userMeal == null) {
-            throw new NotFoundException("Wrong userId in save attempt");
-        }
-        return userMeal;
+        checkNew(meal);
+        return repository.save(meal, userId);
     }
 
     @Override
     public Meal update(Meal meal, int userId) {
-        Meal userMeal = repository.save(meal, userId);
-        if (userMeal == null) {
-            throw new NotFoundException("Wrong userId in update attempt");
-        }
-        return userMeal;
+        return checkNotFoundWithId(repository.save(meal, userId), userId);
     }
 
     @Override
     public void delete(int id, int userId) {
-        if (!repository.delete(id, userId)) {
-            throw new NotFoundException("Wrong userId in delete attempt");
-        }
+        checkNotFoundWithId(repository.delete(id, userId), userId);
     }
 
     @Override
     public Meal get(int id, int userId) {
-        Meal userMeal = repository.get(id, userId);
-        if (userMeal == null) {
-            throw new NotFoundException("Wrong userId in get attempt");
-        }
-        return userMeal;
+        return checkNotFoundWithId(repository.get(id, userId), userId);
     }
 
     @Override
