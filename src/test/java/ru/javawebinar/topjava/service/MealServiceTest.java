@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
-import static ru.javawebinar.topjava.web.MealTestData.*;
+import static ru.javawebinar.topjava.MealTestData.*;
 
 @ContextConfiguration({
         "classpath:spring/spring-app.xml",
@@ -33,7 +31,7 @@ public class MealServiceTest {
     @Test
     public void get() throws Exception {
         Meal meal = mealService.get(MEAL1_ID, START_SEQ);
-        Assert.assertEquals(MEAL1.toString(), meal.toString());
+        assertMealMatch(meal, MEAL1);
     }
 
     @Test(expected = NotFoundException.class)
@@ -44,7 +42,7 @@ public class MealServiceTest {
     @Test
     public void delete() throws Exception {
         mealService.delete(MEAL1_ID, START_SEQ);
-        Assert.assertEquals(Arrays.asList(MEAL3, MEAL2).toString(), mealService.getAll(START_SEQ).toString());
+        assertMealsListMatch(Arrays.asList(MEAL3, MEAL2), mealService.getAll(START_SEQ));
     }
 
     @Test(expected = NotFoundException.class)
@@ -54,42 +52,43 @@ public class MealServiceTest {
 
     @Test
     public void getBetweenDates() throws Exception {
-        Assert.assertEquals(Arrays.asList(MEAL2, MEAL1).toString(),
+        assertMealsListMatch(Arrays.asList(MEAL2, MEAL1),
                 mealService.getBetweenDates(LocalDate.of(2018, 7, 15),
-                        LocalDate.of(2018, 7, 15), START_SEQ).toString());
+                        LocalDate.of(2018, 7, 15), START_SEQ));
     }
 
     @Test
     public void getBetweenDateTimes() throws Exception {
-        Assert.assertEquals(Arrays.asList(MEAL3, MEAL2, MEAL1).toString(),
+        assertMealsListMatch(Arrays.asList(MEAL3, MEAL2, MEAL1),
                 mealService.getBetweenDateTimes(LocalDateTime.of(2018, 7, 15, 7, 0),
-                        LocalDateTime.of(2018, 7, 16, 23, 0), START_SEQ).toString());
+                        LocalDateTime.of(2018, 7, 16, 23, 0), START_SEQ));
     }
 
     @Test
     public void getAll() throws Exception {
-        Assert.assertEquals(Arrays.asList(MEAL3, MEAL2, MEAL1).toString(), mealService.getAll(START_SEQ).toString());
+        assertMealsListMatch(Arrays.asList(MEAL3, MEAL2, MEAL1), mealService.getAll(START_SEQ));
     }
 
     @Test
     public void update() throws Exception {
-        Meal meal = MEAL1;
+        Meal meal = new Meal(MEAL1);
         meal.setDescription("updated");
         mealService.update(meal, START_SEQ);
-        assertEquals(meal.toString(), mealService.get(MEAL1_ID, START_SEQ).toString());
+        assertMealMatch(meal, mealService.get(MEAL1_ID, START_SEQ));
     }
 
     @Test(expected = NotFoundException.class)
     public void updateNotFound() throws Exception {
-        Meal meal = MEAL1;
+        Meal meal = new Meal(MEAL1);
         meal.setDescription("updated");
         mealService.update(meal, START_SEQ - 1);
     }
 
     @Test
     public void create() throws Exception {
-        Meal meal = new Meal(LocalDateTime.of(2018, 7, 16, 20, 0), "test create", 500);
+        Meal meal = new Meal(LocalDateTime.of(2018, 7, 16, 20, 0),
+                "test create", 500);
         mealService.create(meal, START_SEQ);
-        Assert.assertEquals(Arrays.asList(meal, MEAL3, MEAL2, MEAL1).toString(), mealService.getAll(START_SEQ).toString());
+        assertMealsListMatch(Arrays.asList(meal, MEAL3, MEAL2, MEAL1), mealService.getAll(START_SEQ));
     }
 }

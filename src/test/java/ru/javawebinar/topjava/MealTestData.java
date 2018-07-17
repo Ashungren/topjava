@@ -1,9 +1,12 @@
-package ru.javawebinar.topjava.web;
+package ru.javawebinar.topjava;
 
 import ru.javawebinar.topjava.model.AbstractBaseEntity;
 import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MealTestData {
     public static final int MEAL1_ID = AbstractBaseEntity.START_SEQ + 2;
@@ -18,4 +21,17 @@ public class MealTestData {
             LocalDateTime.of(2018, 7, 15, 8, 0), "admin breakfast", 900);
     public static final Meal ADMIN_MEAL2 = new Meal(MEAL1_ID + 4,
             LocalDateTime.of(2018, 7, 15, 15, 0), "admin dinner", 1000);
+
+    public static void assertMealMatch(Meal actual, Meal expected) {
+        assertThat(actual.getId()).isEqualTo(expected.getId());
+        assertThat(actual.getDateTime()).isEqualTo(expected.getDateTime());
+        assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
+        assertThat(actual.getCalories()).isEqualTo(expected.getCalories());
+    }
+
+    public static void assertMealsListMatch(List<Meal> actualList, List<Meal> expectedList) {
+        for (int i = 0; i < actualList.size(); i++) {
+            assertMealMatch(actualList.get(i), expectedList.get(i));
+        }
+    }
 }
