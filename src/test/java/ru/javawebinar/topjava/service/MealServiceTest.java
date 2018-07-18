@@ -36,37 +36,36 @@ public class MealServiceTest {
 
     @Test(expected = NotFoundException.class)
     public void getNotFound() throws Exception {
-        Meal meal = mealService.get(MEAL1_ID, START_SEQ - 1);
+        mealService.get(MEAL1_ID, START_SEQ + 1);
     }
 
     @Test
     public void delete() throws Exception {
         mealService.delete(MEAL1_ID, START_SEQ);
-        assertMealsListMatch(Arrays.asList(MEAL3, MEAL2), mealService.getAll(START_SEQ));
+        assertMealsListMatch(mealService.getAll(START_SEQ), Arrays.asList(MEAL3, MEAL2));
     }
 
     @Test(expected = NotFoundException.class)
     public void deleteNotFound() throws Exception {
-        mealService.delete(MEAL1_ID, START_SEQ - 1);
+        mealService.delete(MEAL1_ID, START_SEQ + 1);
     }
 
     @Test
     public void getBetweenDates() throws Exception {
-        assertMealsListMatch(Arrays.asList(MEAL2, MEAL1),
-                mealService.getBetweenDates(LocalDate.of(2018, 7, 15),
-                        LocalDate.of(2018, 7, 15), START_SEQ));
+        assertMealsListMatch(mealService.getBetweenDates(LocalDate.of(2018, 7, 15),
+                LocalDate.of(2018, 7, 15), START_SEQ), Arrays.asList(MEAL2, MEAL1));
     }
 
     @Test
     public void getBetweenDateTimes() throws Exception {
-        assertMealsListMatch(Arrays.asList(MEAL3, MEAL2, MEAL1),
-                mealService.getBetweenDateTimes(LocalDateTime.of(2018, 7, 15, 7, 0),
-                        LocalDateTime.of(2018, 7, 16, 23, 0), START_SEQ));
+        assertMealsListMatch(mealService.getBetweenDateTimes(LocalDateTime.of(2018, 7, 15, 7, 0),
+                LocalDateTime.of(2018, 7, 16, 23, 0), START_SEQ),
+                Arrays.asList(MEAL3, MEAL2, MEAL1));
     }
 
     @Test
     public void getAll() throws Exception {
-        assertMealsListMatch(Arrays.asList(MEAL3, MEAL2, MEAL1), mealService.getAll(START_SEQ));
+        assertMealsListMatch(mealService.getAll(START_SEQ), Arrays.asList(MEAL3, MEAL2, MEAL1));
     }
 
     @Test
@@ -74,14 +73,14 @@ public class MealServiceTest {
         Meal meal = new Meal(MEAL1);
         meal.setDescription("updated");
         mealService.update(meal, START_SEQ);
-        assertMealMatch(meal, mealService.get(MEAL1_ID, START_SEQ));
+        assertMealMatch(mealService.get(MEAL1_ID, START_SEQ), meal);
     }
 
     @Test(expected = NotFoundException.class)
     public void updateNotFound() throws Exception {
         Meal meal = new Meal(MEAL1);
         meal.setDescription("updated");
-        mealService.update(meal, START_SEQ - 1);
+        mealService.update(meal, START_SEQ + 1);
     }
 
     @Test
@@ -89,6 +88,6 @@ public class MealServiceTest {
         Meal meal = new Meal(LocalDateTime.of(2018, 7, 16, 20, 0),
                 "test create", 500);
         mealService.create(meal, START_SEQ);
-        assertMealsListMatch(Arrays.asList(meal, MEAL3, MEAL2, MEAL1), mealService.getAll(START_SEQ));
+        assertMealsListMatch(mealService.getAll(START_SEQ), Arrays.asList(meal, MEAL3, MEAL2, MEAL1));
     }
 }

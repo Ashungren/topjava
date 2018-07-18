@@ -23,13 +23,11 @@ public class MealTestData {
             LocalDateTime.of(2018, 7, 15, 15, 0), "admin dinner", 1000);
 
     public static void assertMealMatch(Meal actual, Meal expected) {
-        assertThat(actual.getId()).isEqualTo(expected.getId());
-        assertThat(actual.getDateTime()).isEqualTo(expected.getDateTime());
-        assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
-        assertThat(actual.getCalories()).isEqualTo(expected.getCalories());
+        assertThat(actual).isEqualToComparingFieldByField(expected);
     }
 
     public static void assertMealsListMatch(List<Meal> actualList, List<Meal> expectedList) {
+        assertThat(actualList.size()).isEqualTo(expectedList.size());
         for (int i = 0; i < actualList.size(); i++) {
             assertMealMatch(actualList.get(i), expectedList.get(i));
         }

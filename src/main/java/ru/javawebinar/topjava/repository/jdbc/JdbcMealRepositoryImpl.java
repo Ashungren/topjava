@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -74,7 +75,7 @@ public class JdbcMealRepositoryImpl implements MealRepository {
     @Override
     public Meal get(int id, int userId) {
         List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? AND  user_id=?", ROW_MAPPER, id, userId);
-        return meals.size() == 1 ? meals.get(0) : null;
+        return meals.size() == 1 ? DataAccessUtils.requiredSingleResult(meals) : null;
     }
 
     @Override
@@ -85,6 +86,6 @@ public class JdbcMealRepositoryImpl implements MealRepository {
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
         return jdbcTemplate.query("SELECT * FROM meals WHERE date_time >=? AND  date_time<? AND user_id=?" +
-                " ORDER BY date_time DESC ", ROW_MAPPER, Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userId);
+                " ORDER BY date_time DESC ", ROW_MAPPER, startDate, endDate, userId);
     }
 }
