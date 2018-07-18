@@ -75,7 +75,7 @@ public class JdbcMealRepositoryImpl implements MealRepository {
     @Override
     public Meal get(int id, int userId) {
         List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? AND  user_id=?", ROW_MAPPER, id, userId);
-        return meals.size() == 1 ? DataAccessUtils.requiredSingleResult(meals) : null;
+        return DataAccessUtils.singleResult(meals);
     }
 
     @Override

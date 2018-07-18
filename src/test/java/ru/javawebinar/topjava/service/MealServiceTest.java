@@ -14,7 +14,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
-import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
+import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
+import static ru.javawebinar.topjava.UserTestData.USER_ID;
 import static ru.javawebinar.topjava.MealTestData.*;
 
 @ContextConfiguration({
@@ -30,64 +31,64 @@ public class MealServiceTest {
 
     @Test
     public void get() throws Exception {
-        Meal meal = mealService.get(MEAL1_ID, START_SEQ);
+        Meal meal = mealService.get(MEAL1_ID, USER_ID);
         assertMealMatch(meal, MEAL1);
     }
 
     @Test(expected = NotFoundException.class)
     public void getNotFound() throws Exception {
-        mealService.get(MEAL1_ID, START_SEQ + 1);
+        mealService.get(MEAL1_ID, ADMIN_ID);
     }
 
     @Test
     public void delete() throws Exception {
-        mealService.delete(MEAL1_ID, START_SEQ);
-        assertMealsListMatch(mealService.getAll(START_SEQ), Arrays.asList(MEAL3, MEAL2));
+        mealService.delete(MEAL1_ID, USER_ID);
+        assertMatch(mealService.getAll(USER_ID), Arrays.asList(MEAL3, MEAL2));
     }
 
     @Test(expected = NotFoundException.class)
     public void deleteNotFound() throws Exception {
-        mealService.delete(MEAL1_ID, START_SEQ + 1);
+        mealService.delete(MEAL1_ID, ADMIN_ID);
     }
 
     @Test
     public void getBetweenDates() throws Exception {
-        assertMealsListMatch(mealService.getBetweenDates(LocalDate.of(2018, 7, 15),
-                LocalDate.of(2018, 7, 15), START_SEQ), Arrays.asList(MEAL2, MEAL1));
+        assertMatch(mealService.getBetweenDates(LocalDate.of(2018, 7, 15),
+                LocalDate.of(2018, 7, 15), USER_ID), Arrays.asList(MEAL2, MEAL1));
     }
 
     @Test
     public void getBetweenDateTimes() throws Exception {
-        assertMealsListMatch(mealService.getBetweenDateTimes(LocalDateTime.of(2018, 7, 15, 7, 0),
-                LocalDateTime.of(2018, 7, 16, 23, 0), START_SEQ),
+        assertMatch(mealService.getBetweenDateTimes(LocalDateTime.of(2018, 7, 15, 7, 0),
+                LocalDateTime.of(2018, 7, 16, 23, 0), USER_ID),
                 Arrays.asList(MEAL3, MEAL2, MEAL1));
     }
 
     @Test
     public void getAll() throws Exception {
-        assertMealsListMatch(mealService.getAll(START_SEQ), Arrays.asList(MEAL3, MEAL2, MEAL1));
+        assertMatch(mealService.getAll(USER_ID), Arrays.asList(MEAL3, MEAL2, MEAL1));
     }
 
     @Test
     public void update() throws Exception {
         Meal meal = new Meal(MEAL1);
         meal.setDescription("updated");
-        mealService.update(meal, START_SEQ);
-        assertMealMatch(mealService.get(MEAL1_ID, START_SEQ), meal);
+        mealService.update(meal, USER_ID);
+        assertMealMatch(mealService.get(MEAL1_ID, USER_ID), meal);
     }
 
     @Test(expected = NotFoundException.class)
     public void updateNotFound() throws Exception {
         Meal meal = new Meal(MEAL1);
         meal.setDescription("updated");
-        mealService.update(meal, START_SEQ + 1);
+        mealService.update(meal, ADMIN_ID);
     }
 
     @Test
     public void create() throws Exception {
         Meal meal = new Meal(LocalDateTime.of(2018, 7, 16, 20, 0),
                 "test create", 500);
-        mealService.create(meal, START_SEQ);
-        assertMealsListMatch(mealService.getAll(START_SEQ), Arrays.asList(meal, MEAL3, MEAL2, MEAL1));
+        mealService.create(meal, USER_ID);
+        assertMatch(mealService.getAll(USER_ID), Arrays.asList(meal, MEAL3, MEAL2, MEAL1));
     }
 }

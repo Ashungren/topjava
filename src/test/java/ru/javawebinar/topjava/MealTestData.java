@@ -4,7 +4,6 @@ import ru.javawebinar.topjava.model.AbstractBaseEntity;
 import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,10 +25,7 @@ public class MealTestData {
         assertThat(actual).isEqualToComparingFieldByField(expected);
     }
 
-    public static void assertMealsListMatch(List<Meal> actualList, List<Meal> expectedList) {
-        assertThat(actualList.size()).isEqualTo(expectedList.size());
-        for (int i = 0; i < actualList.size(); i++) {
-            assertMealMatch(actualList.get(i), expectedList.get(i));
-        }
+    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
+        assertThat(actual).isEqualTo(expected);
     }
 }
