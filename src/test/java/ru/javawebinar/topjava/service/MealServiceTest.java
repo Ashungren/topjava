@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.service;
 
 import org.junit.*;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,26 +36,17 @@ public class MealServiceTest {
     }
 
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static StringBuilder builder = new StringBuilder();
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private static String string = "\n";
-
     @Rule
-    public TestWatcher watcher = new TestWatcher() {
-        long startTime;
-        long endTime;
-
+    public Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            startTime = System.currentTimeMillis();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            endTime = System.currentTimeMillis();
-            string += description.getMethodName() + " time in millisecond : " + (endTime - startTime) + "\n";
+        protected void finished(long nanos, Description description) {
+            log.info(description.getMethodName() + " finished in " + (nanos / 1000000) + " ms");
+            builder.append(description.getMethodName()).append(" finished in ").append(nanos / 1000000).append(" ms\n");
         }
     };
 
@@ -120,6 +111,6 @@ public class MealServiceTest {
 
     @AfterClass
     public static void result() {
-        log.info(string);
+        log.info(builder.toString());
     }
 }
